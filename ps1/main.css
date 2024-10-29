@@ -1,0 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;  
+}
+body {
+    background-color: white;
+    display: flex;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    height: 100vh;
+    padding: 0 1.7rem;
+    color: white;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    background:linear-gradient(to right,white,#1b3ba3);
+}
+
+.sidebar.close {
+    width: 0; 
+    padding: 0;
+    overflow: hidden;
+}
+
+
+.logo img{
+    display: block;
+    margin: 0 auto;
+    transition: all 0.5s ease;
+}
+
+.menu {
+    height: 88%;
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    padding: 1rem;
+    margin: 8px 0;
+    border-radius: 8px;
+    transition: all 0.5s ease;
+}
+
+.menu li:hover, .active {
+    background-color: #245ac4;
+}
+
+.menu a {
+    color: black;
+    font-size: 14px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.menu a span {
+    overflow: hidden;
+    transition: all 0.5s ease;
+}
+
+.menu a i {
+    font-size: 1.2rem;
+}
+.toggle-btn {
+    position: absolute;
+    top: 20px;
+    left: 250px; 
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: left 0.5s ease;
+}
+.sidebar.close ~ .toggle-btn {
+    left: 20px;
+}
+.logout{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+.content {
+    padding: 20px;
+    background-color: white;
+    flex-grow: 1;
+    text-align: center;
+    color: black;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+
+}
+.slot {
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+    line-height: 100px; /* Center the text vertically */
+    font-size: 24px; /* Font size for slot number */
+    border-radius: 8px;
+}
+.available {
+    background-color: #4CAF50; /* Green for available */
+    color: white;
+}
+.occupied {
+    background-color: #F44336; /* Red for occupied */
+    color: white;
+}
