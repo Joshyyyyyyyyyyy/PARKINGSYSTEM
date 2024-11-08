@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
@@ -7,21 +6,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
     exit();
 }
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "database1";
-
-$connection = new mysqli($servername, $username, $password, $database);
-
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
-
-$sql = "SELECT * FROM clients WHERE slot_occupied IS NOT NULL";
-$result = $connection->query($sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,17 +44,17 @@ $result = $connection->query($sql);
                 <span>Vehicles Entry</span>
             </a>
         </li>
-        <li>
+        <li class="active">
             <a href="InVehicle.php">
                 <i class="fa fa-xl fa-toggle-on color-orange"></i>
                 <span>IN Vehicles</span>
             </a>
         </li>
-        <li class="active">
+        <li>
             <a href="outVehicle.php">
-                 <i class="fa fa-xl fa-toggle-off color-teal"></i>
-                  <span>OUT Vehicles</span>
-             </a>
+                <i class="fa fa-xl fa-toggle-off color-teal"></i>
+                <span>OUT Vehicles</span>
+            </a>
         </li>
         <li>
             <a href="informationManagement.php">
@@ -101,8 +86,9 @@ $result = $connection->query($sql);
     <i class="fas fa-bars"></i>
 </div>
 <div class="container my-5">
-    <h2>Out Vehicles</h2>
-    <table class="table table-bordered">
+    <h2 class="mb-4">List of Clients</h2>
+    <a class="btn btn-primary mb-3" href="/ps1/createNewClient.php" role="button">New Client</a>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>ID</th>
@@ -111,95 +97,109 @@ $result = $connection->query($sql);
                 <th>Registration Number</th>
                 <th>Slot Occupied</th>
                 <th>Date</th>
-                <th>Price</th>
-                <th>Checkout</th>
+                <th>price</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $row['id'] . "</td>";
-                    echo "<td>" . $row['name'] . "</td>";
-                    echo "<td>" . $row['vehicle_type'] . "</td>";
-                    echo "<td>" . $row['registration'] . "</td>";
-                    echo "<td>" . $row['slot_occupied'] . "</td>";
-                    echo "<td>" . $row['date'] . "</td>";
-                    echo "<td>" . $row['price'] . "</td>";
-                    echo "<td><a href='checkout.php?id=" . $row['id'] . "&slot=" . $row['slot_occupied'] . "' class='btn btn-primary'>Checkout</a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='8' class='text-center'>No vehicles to check out</td></tr>";
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $database = "database1";
+
+            $connection= new mysqli($servername, $username, $password, $database);
+
+            if($connection -> connect_error) {
+                die("Connection failed: " . $connection->connect_error);
+            }
+
+            $sql = "SELECT * FROM clients";
+            $result = $connection->query($sql);
+            if (!$result) {
+                die("Invalid query: ". $connection->error);
+            }
+
+            while($row = $result->fetch_assoc()){
+                echo "
+                    <tr>
+                        <td>$row[id]</td>
+                        <td>$row[name]</td>
+                        <td>$row[vehicle_type]</td>
+                        <td>$row[registration]</td>
+                        <td>$row[slot_occupied]</td>
+                        <td>$row[date]</td>
+                        <td>$row[price]</td>
+
+                        <td>
+                            <a class='btn btn-primary btn-sm' href='/ps1/editClient.php?id=$row[id]'>Edit</a>
+                            <a class='btn btn-danger btn-sm' href='/ps1/delete.php?id=$row[id]'>Delete</a>
+                        </td>                  
+                    </tr>   
+                ";
             }
             ?>
         </tbody>
     </table>
 </div>
-</div>
+
 <style>
-    .container {
+   
+.container {
     margin-top: 20px;
 }
 
 .table {
-    border-radius: 0.5rem;
-    overflow: hidden;
+    border-radius: 0.5rem; 
+    overflow: hidden; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: white;
+    background-color: white; 
 }
 
 .table thead th {
-    background-color: #1b3ba3;
-    color: white;
-    padding: 15px;
-    text-align: left;
-    font-weight: bold;
+    background-color: #1b3ba3; 
+    color: white; 
+    padding: 15px; 
+    text-align: left; 
 }
 
 .table tbody tr {
-    transition: background-color 0.3s;
+    transition: background-color 0.3s; 
 }
 
 .table tbody tr:hover {
-    background-color: rgba(27, 59, 163, 0.1);
+    background-color: rgba(0, 123, 255, 0.1); 
 }
 
 .table tbody td {
-    padding: 12px;
-    color: #333;
-    vertical-align: middle;
+    padding: 12px; 
+    color: #333; 
+    vertical-align: middle; 
 }
 
 .table tbody td a {
-    margin-right: 5px;
+    margin-right: 5px; 
 }
 
 .table .btn {
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-weight: bold;
+    padding: 5px 10px; 
 }
 
 .btn-primary {
-    background-color: #1b3ba3;
-    border: none;
-    color: white;
+    background-color: #1b3ba3; 
+    border: none; 
 }
 
 .btn-primary:hover {
-    background-color: #142d7a;
+    background-color: #0056b3; 
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    color: white;
-    border: none;
+    background-color: #dc3545; 
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #c82333; 
 }
 
 </style>
@@ -209,5 +209,3 @@ $result = $connection->query($sql);
 </body>
 </body>
 </html>
-
-<?php $connection->close(); ?>

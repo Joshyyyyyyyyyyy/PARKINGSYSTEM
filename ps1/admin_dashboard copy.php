@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
@@ -12,16 +11,41 @@ $username = "root";
 $password = "";
 $database = "database1";
 
+// Create a connection
 $connection = new mysqli($servername, $username, $password, $database);
 
+// Check for connection errors
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
 }
 
-$sql = "SELECT * FROM clients WHERE slot_occupied IS NOT NULL";
-$result = $connection->query($sql);
-?>
+// Query to get available slots
+$availableSlotsQuery = "SELECT COUNT(*) AS available_slots FROM parking_slots WHERE status = 'available'";
+$availableSlotsResult = $connection->query($availableSlotsQuery);
+$availableSlots = 0;
+if ($availableSlotsResult) {
+    $availableSlotsRow = $availableSlotsResult->fetch_assoc();
+    $availableSlots = $availableSlotsRow['available_slots'];
+}
 
+// Query to get occupied slots
+$occupiedSlotsQuery = "SELECT COUNT(*) AS occupied_slots FROM parking_slots WHERE status = 'occupied'";
+$occupiedSlotsResult = $connection->query($occupiedSlotsQuery);
+$occupiedSlots = 0;
+if ($occupiedSlotsResult) {
+    $occupiedSlotsRow = $occupiedSlotsResult->fetch_assoc();
+    $occupiedSlots = $occupiedSlotsRow['occupied_slots'];
+}
+
+// Query to get vehicles in
+$vehicleInQuery = "SELECT COUNT(*) AS vehicle_in FROM clients WHERE date_out IS NULL";
+$vehicleInResult = $connection->query($vehicleInQuery);
+$vehicleIn = 0;
+if ($vehicleInResult) {
+    $vehicleInRow = $vehicleInResult->fetch_assoc();
+    $vehicleIn = $vehicleInRow['vehicle_in'];
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +65,7 @@ $result = $connection->query($sql);
     <img src="newlogo.png" alt="Parking System Logo" width="200" > 
 </div>
 <ul class="menu">
-        <li>
+        <li class="active">
             <a href="admin_dashboard.php">
                 <i class="fas fa-gauge"></i>
                 <span>Dashboard</span>
@@ -65,7 +89,7 @@ $result = $connection->query($sql);
                 <span>IN Vehicles</span>
             </a>
         </li>
-        <li class="active">
+        <li>
             <a href="outVehicle.php">
                  <i class="fa fa-xl fa-toggle-off color-teal"></i>
                   <span>OUT Vehicles</span>
@@ -90,7 +114,7 @@ $result = $connection->query($sql);
             </a>
         </li>
         <li class="logout">
-            <a href="index.php">
+            <a href="logout.php">
                 <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
             </a>
@@ -100,114 +124,46 @@ $result = $connection->query($sql);
 <div class="toggle-btn" id="toggleBtn">
     <i class="fas fa-bars"></i>
 </div>
+<section>
 <div class="container my-5">
-    <h2>Out Vehicles</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Vehicle Type</th>
-                <th>Registration Number</th>
-                <th>Slot Occupied</th>
-                <th>Date</th>
-                <th>Price</th>
-                <th>Checkout</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $row['id'] . "</td>";
-                    echo "<td>" . $row['name'] . "</td>";
-                    echo "<td>" . $row['vehicle_type'] . "</td>";
-                    echo "<td>" . $row['registration'] . "</td>";
-                    echo "<td>" . $row['slot_occupied'] . "</td>";
-                    echo "<td>" . $row['date'] . "</td>";
-                    echo "<td>" . $row['price'] . "</td>";
-                    echo "<td><a href='checkout.php?id=" . $row['id'] . "&slot=" . $row['slot_occupied'] . "' class='btn btn-primary'>Checkout</a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='8' class='text-center'>No vehicles to check out</td></tr>";
-            }
-            ?>
-        </tbody>
-    </table>
+    <div class="row">
+        <!-- Available Slots Container -->
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-4">
+                <div class="card-header">Available Slots</div>
+                <div class="card-body">
+                    <h3 class="card-title"><?= $availableSlots ?> Slot(s)</h3>
+                    <p class="card-text">Currently available parking slots.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Occupied Slots Container -->
+        <div class="col-md-4">
+            <div class="card text-white bg-danger mb-4">
+                <div class="card-header">Occupied Slots</div>
+                <div class="card-body">
+                    <h3 class="card-title"><?= $occupiedSlots ?> Slot(s)</h3>
+                    <p class="card-text">Currently occupied parking slots.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicles In Container -->
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-4">
+                <div class="card-header">Vehicles In</div>
+                <div class="card-body">
+                    <h3 class="card-title"><?= $vehicleIn ?> Vehicle(s)</h3>
+                    <p class="card-text">Vehicles currently in the parking system.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
-<style>
-    .container {
-    margin-top: 20px;
-}
+</section>
 
-.table {
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: white;
-}
-
-.table thead th {
-    background-color: #1b3ba3;
-    color: white;
-    padding: 15px;
-    text-align: left;
-    font-weight: bold;
-}
-
-.table tbody tr {
-    transition: background-color 0.3s;
-}
-
-.table tbody tr:hover {
-    background-color: rgba(27, 59, 163, 0.1);
-}
-
-.table tbody td {
-    padding: 12px;
-    color: #333;
-    vertical-align: middle;
-}
-
-.table tbody td a {
-    margin-right: 5px;
-}
-
-.table .btn {
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.btn-primary {
-    background-color: #1b3ba3;
-    border: none;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #142d7a;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-</style>
-<script src="scripts.js">
-    
-</script>
+<script src="admin.js"></script>
 </body>
 </body>
 </html>
-
-<?php $connection->close(); ?>

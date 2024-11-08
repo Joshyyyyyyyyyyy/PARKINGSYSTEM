@@ -1,26 +1,46 @@
 <?php
 session_start();
-include("connection.php");
+include 'connection.php';
 
-if (isset($_POST['submit'])) {
-    $username = $_POST['user'];
-    $password = $_POST['pass'];
+// Clear any previous notifications
+unset($_SESSION['notification']);
 
-    $sql = "SELECT * FROM login WHERE username = ? AND password = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ss", $username, $password); 
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
- 
-    if (mysqli_num_rows($result) == 1) {
-        $_SESSION['username'] = $username; // Save username in session
-        header("location: dashboard.php"); // Redirect to dashboard
-        exit();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    $stmt = $conn->prepare("SELECT password, role FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($hashed_password, $role);
+        $stmt->fetch();
+
+        if (password_verify($password, $hashed_password)) {
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = $role;
+
+            // Redirect to the appropriate dashboard
+            if ($role === 'admin') {
+                header("Location: admin_dashboard.php");
+            } else {
+                header("Location: parking_attendant_dashboard.php");
+            }
+            exit();
+        } else {
+            $_SESSION['notification'] = "Incorrect password."; // Set notification
+        }
     } else {
-        echo '<script>
-            alert("Login failed. Invalid username or password!!!");
-            window.location.href = "index.php";
-        </script>';
+        $_SESSION['notification'] = "User not found."; // Set notification
     }
+
+    $stmt->close();
+    $conn->close();
+
+    // Redirect back to the index page to display the error
+    header("Location: index.php");
+    exit();
 }
 ?>

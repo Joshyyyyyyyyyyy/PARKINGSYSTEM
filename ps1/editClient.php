@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
+    $_SESSION['notification'] = "Access denied. Redirected to login.";
+    header("Location: index.php");
+    exit();
+}
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -12,59 +20,89 @@ $vehicle_type = "";
 $registration = "";
 $slot_occupied = "";
 $date = "";
+$price = "";
 
 $errorMessage = ""; 
 $successMessage = "";
 
-
+// Fetch existing data for the client
 if (isset($_GET["id"])) {
     $id = $_GET["id"];
 
-    $sql = "SELECT * FROM clients WHERE id=$id";
-    $result = $connection->query($sql);
-    $row = $result->fetch_assoc();
+    $sql = "SELECT * FROM clients WHERE id=?";
+    if ($stmt = $connection->prepare($sql)) {
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+    }
 
     if (!$row) {
         header("location: /addVehicles/clients.php");
         exit;
     }
 
+    // Assign fetched data to variables
     $name = $row["name"];
     $vehicle_type = $row["vehicle_type"];
     $registration = $row["registration"];
     $slot_occupied = $row["slot_occupied"];
     $date = $row["date"];
+    $price = $row["price"];
 }
 
-
+// Process form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $_POST["id"]; 
     $name = $_POST["name"];
     $vehicle_type = $_POST["vehicle_type"];
     $registration = $_POST["registration"];
-    $slot_occupied = $_POST["slot_occupied"];
+    $new_slot_occupied = $_POST["slot_occupied"]; // use a separate variable for the new slot
     $date = $_POST["date"];
+    $price = $_POST["price"];
 
     do {
-        if (empty($id) || empty($name) || empty($vehicle_type) || empty($registration) || empty($slot_occupied) || empty($date)) {
+        if (empty($id) || empty($name) || empty($vehicle_type) || empty($registration) || empty($new_slot_occupied) || empty($date)) {
             $errorMessage = "ALL the fields are required"; 
             break;
         }
 
+        // Update the client information
         $sql = "UPDATE clients 
-                SET name = '$name', vehicle_type = '$vehicle_type', registration = '$registration', slot_occupied = '$slot_occupied', date = '$date'
-                WHERE id = $id";
-
-        $result = $connection->query($sql);
-
-        if (!$result) {
-            $errorMessage = "Invalid query: " . $connection->error; 
-            break;
+                SET name = ?, vehicle_type = ?, registration = ?, slot_occupied = ?, date = ?, price = ?
+                WHERE id = ?";
+        if ($stmt = $connection->prepare($sql)) {
+            $stmt->bind_param("ssssssi", $name, $vehicle_type, $registration, $new_slot_occupied, $date, $price, $id);
+            if (!$stmt->execute()) {
+                $errorMessage = "Error updating client: " . $stmt->error;
+                break;
+            }
+            $stmt->close();
         }
 
-        $successMessage = "Client info updated correctly";
+        // Update the parking slot status only if the slot has changed
+        if ($new_slot_occupied != $slot_occupied) {
+            // Reset the previous slot
+            if ($slot_occupied) {
+                $updatePrevSlotSQL = "UPDATE parking_slots SET status = 'available' WHERE slot_number = ?";
+                if ($stmt = $connection->prepare($updatePrevSlotSQL)) {
+                    $stmt->bind_param("i", $slot_occupied);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+            }
+            // Update the new slot
+            $updateNewSlotSQL = "UPDATE parking_slots SET status = 'occupied' WHERE slot_number = ?";
+            if ($stmt = $connection->prepare($updateNewSlotSQL)) {
+                $stmt->bind_param("i", $new_slot_occupied);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
 
-        
+        $successMessage = "Client info updated correctly, and slot status updated";
+
     } while (false);
 }
 
@@ -89,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <img src="newlogo.png" alt="Parking System Logo" width="200" > 
 </div>
 <ul class="menu">
-        <li class="active">
+        <li>
             <a href="#">
                 <i class="fas fa-gauge"></i>
                 <span>Dashboard</span>
@@ -102,13 +140,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </a>
         </li>
         <li>
-            <a href="createNewClient.php">
+            <a href="EntryVehicle.php">
                 <i class="fa fa-xl fa-car color-blue"></i>
                 <span>Vehicles Entry</span>
             </a>
         </li>
-        <li>
-            <a href="costumerMngt.php">
+        <li class="active">
+            <a href="InVehicle.php">
                 <i class="fa fa-xl fa-toggle-on color-orange"></i>
                 <span>IN Vehicles</span>
             </a>
@@ -166,8 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label class="col-sm-3 col-form-label">Vehicle_type</label>
                 <div class="col-sm-6">
                     <select type="options" class="form-control" name="vehicle_type" value="<?php echo $vehicle_type; ?>">
-                      <option value="4wheeler">4wheeler</option>
-                      <option value="2wheeler">2wheeler</option>
+                      <option value="0">CLICK TO CHOOSE A VEHICLE TYPE</option>
+                      <option value="4 wheels">4 wheels</option>
+                      <option value="2 wheels">2 wheels</option>
                     </select>
                 </div>
             </div>
@@ -189,7 +228,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="text" class="form-control" name="date" value="<?php echo $date; ?>">
                 </div>
             </div>
-
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">Price</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" name="price" value="<?php echo $price; ?>">
+                </div>
+            </div>
             <?php
              if ( !empty($successMessage) ){
                 echo "

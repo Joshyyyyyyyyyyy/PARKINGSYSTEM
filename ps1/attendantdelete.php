@@ -47,6 +47,6 @@ if (isset($_GET["id"])) {
     $connection->close();
 }
 
-header("location:/ps1/InVehicle.php");
+header("location:/ps1/attendantInVehicle.php");
 exit;
 ?>

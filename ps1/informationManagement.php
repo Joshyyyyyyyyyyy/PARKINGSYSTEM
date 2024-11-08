@@ -1,5 +1,4 @@
-<?php
-
+<?php  
 session_start();
 
 if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
@@ -12,13 +11,16 @@ $username = "root";
 $password = "";
 $database = "database1";
 
+// Create a connection
 $connection = new mysqli($servername, $username, $password, $database);
 
+// Check for connection errors
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
 }
 
-$sql = "SELECT * FROM clients WHERE slot_occupied IS NOT NULL";
+// Retrieve all client information, including checked-out clients
+$sql = "SELECT * FROM clients";
 $result = $connection->query($sql);
 ?>
 
@@ -65,13 +67,13 @@ $result = $connection->query($sql);
                 <span>IN Vehicles</span>
             </a>
         </li>
-        <li class="active">
+        <li>
             <a href="outVehicle.php">
                  <i class="fa fa-xl fa-toggle-off color-teal"></i>
                   <span>OUT Vehicles</span>
              </a>
         </li>
-        <li>
+        <li class="active">
             <a href="informationManagement.php">
                 <i class="fas fa-database"></i>
                 <span>Information Management</span>                
@@ -90,7 +92,7 @@ $result = $connection->query($sql);
             </a>
         </li>
         <li class="logout">
-            <a href="index.php">
+            <a href="logout.php">
                 <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
             </a>
@@ -101,109 +103,100 @@ $result = $connection->query($sql);
     <i class="fas fa-bars"></i>
 </div>
 <div class="container my-5">
-    <h2>Out Vehicles</h2>
-    <table class="table table-bordered">
+    <h2 class="text-center">Client Information Management</h2>
+    <table class="table table-striped">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Client ID</th>
                 <th>Name</th>
                 <th>Vehicle Type</th>
                 <th>Registration Number</th>
                 <th>Slot Occupied</th>
                 <th>Date</th>
-                <th>Price</th>
-                <th>Checkout</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            <?php
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $row['id'] . "</td>";
-                    echo "<td>" . $row['name'] . "</td>";
-                    echo "<td>" . $row['vehicle_type'] . "</td>";
-                    echo "<td>" . $row['registration'] . "</td>";
-                    echo "<td>" . $row['slot_occupied'] . "</td>";
-                    echo "<td>" . $row['date'] . "</td>";
-                    echo "<td>" . $row['price'] . "</td>";
-                    echo "<td><a href='checkout.php?id=" . $row['id'] . "&slot=" . $row['slot_occupied'] . "' class='btn btn-primary'>Checkout</a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='8' class='text-center'>No vehicles to check out</td></tr>";
-            }
-            ?>
+            <?php if ($result->num_rows > 0): ?>
+                <?php while($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['id']); ?></td>
+                        <td><?php echo htmlspecialchars($row['name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
+                        <td><?php echo htmlspecialchars($row['registration']); ?></td>
+                        <td><?php echo htmlspecialchars($row['slot_occupied']); ?></td>
+                        <td><?php echo htmlspecialchars($row['date']); ?></td>
+                        <td><?php echo isset($row['checked_out']) && $row['checked_out'] ? 'Checked Out' : 'Active'; ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr><td colspan="7" class="text-center">No client data found.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
-</div>
 </div>
 <style>
     .container {
     margin-top: 20px;
+    max-width: 1800px;
 }
 
 .table {
-    border-radius: 0.5rem;
-    overflow: hidden;
+    border-radius: 0.5rem; 
+    overflow: hidden; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: white;
+    background-color: white; 
 }
 
 .table thead th {
-    background-color: #1b3ba3;
-    color: white;
-    padding: 15px;
-    text-align: left;
-    font-weight: bold;
+    background-color: #1b3ba3; 
+    color: white; 
+    padding: 15px; 
+    text-align: left; 
 }
 
 .table tbody tr {
-    transition: background-color 0.3s;
+    transition: background-color 0.3s; 
 }
 
 .table tbody tr:hover {
-    background-color: rgba(27, 59, 163, 0.1);
+    background-color: rgba(0, 123, 255, 0.1); 
 }
 
 .table tbody td {
-    padding: 12px;
-    color: #333;
-    vertical-align: middle;
+    padding: 12px; 
+    color: #333; 
+    vertical-align: middle; 
 }
 
 .table tbody td a {
-    margin-right: 5px;
+    margin-right: 5px; 
 }
 
 .table .btn {
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-weight: bold;
+    padding: 5px 10px; 
 }
 
 .btn-primary {
-    background-color: #1b3ba3;
-    border: none;
-    color: white;
+    background-color: #1b3ba3; 
+    border: none; 
 }
 
 .btn-primary:hover {
-    background-color: #142d7a;
+    background-color: #0056b3; 
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    color: white;
-    border: none;
+    background-color: #dc3545; 
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #c82333; 
 }
-
 </style>
-<script src="scripts.js">
+</div>
+
+<script src="admin.js">
     
 </script>
 </body>

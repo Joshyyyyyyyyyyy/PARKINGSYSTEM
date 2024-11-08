@@ -1,37 +1,25 @@
+
 <?php
+
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $database = "database1";
 
-// Create a connection
 $connection = new mysqli($servername, $username, $password, $database);
 
-// Check for connection errors
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
 }
 
-// Get the client ID and price from the URL
 $clientId = $_GET['id'] ?? '';
-$price = $_GET['price'] ?? '20'; // Default to 20 PHP if not specified
+$price = $_GET['price'] ?? '';
 
-// Debug: Display all IDs in the clients table
-$query = "SELECT id FROM clients";
-$result = $connection->query($query);
-
-echo "<p>Available IDs in clients table: ";
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        echo $row['id'] . " ";
-    }
-} else {
-    echo "No data found in clients table.";
-}
-echo "</p>";
-
-// Retrieve client details from database
-$sql = "SELECT * FROM clients WHERE id = ?";
+$sql = "SELECT clients.name, clients.vehicle_type, clients.registration,clients.price, receipts.slot_number, receipts.checkout_date 
+        FROM clients 
+        JOIN receipts ON clients.id = receipts.client_id 
+        WHERE clients.id = ?";
 $stmt = $connection->prepare($sql);
 $stmt->bind_param("i", $clientId);
 $stmt->execute();
@@ -62,15 +50,16 @@ $connection->close();
                 <p><strong>Name:</strong> <?php echo htmlspecialchars($client['name']); ?></p>
                 <p><strong>Vehicle Type:</strong> <?php echo htmlspecialchars($client['vehicle_type']); ?></p>
                 <p><strong>Registration Number:</strong> <?php echo htmlspecialchars($client['registration']); ?></p>
-                <p><strong>Slot Occupied:</strong> <?php echo htmlspecialchars($client['slot_occupied']); ?></p>
-                <p><strong>Date:</strong> <?php echo htmlspecialchars($client['date']); ?></p>
+                <p><strong>Slot Occupied:</strong> <?php echo htmlspecialchars($client['slot_number']); ?></p>
+                <p><strong>Date:</strong> <?php echo htmlspecialchars($client['checkout_date']); ?></p>
             <?php else: ?>
                 <p>No client found with ID: <?php echo htmlspecialchars($clientId); ?></p>
             <?php endif; ?>
         </div>
         <div class="card-footer text-center">
             <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
-            <a href="outVehicle.php" class="btn btn-secondary">Back to Out Vehicles</a>
+            <a href="clientCheckOut.php" class="btn btn-danger">proceed</a>
+            <a href="outVehicle.php" class="btn btn-secondary">Back</a>
         </div>
     </div>
 </div>

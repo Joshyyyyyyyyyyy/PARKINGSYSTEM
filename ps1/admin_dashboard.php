@@ -6,35 +6,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
     exit();
 }
-
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "database1";
-
-
-$connection = new mysqli($servername, $username, $password, $database);
-
-
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
-
-
-$slotsQuery = "SELECT slot_number, status FROM parking_slots";
-$slotsResult = $connection->query($slotsQuery);
-
-
-$slots = [];
-if ($slotsResult->num_rows > 0) {
-    while ($row = $slotsResult->fetch_assoc()) {
-        $slots[] = $row;
-    }
-} else {
-    echo "No slots found.";
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +26,7 @@ if ($slotsResult->num_rows > 0) {
     <img src="newlogo.png" alt="Parking System Logo" width="200" > 
 </div>
 <ul class="menu">
-        <li>
+        <li class="active">
             <a href="admin_dashboard.php">
                 <i class="fas fa-gauge"></i>
                 <span>Dashboard</span>
@@ -103,7 +75,7 @@ if ($slotsResult->num_rows > 0) {
             </a>
         </li>
         <li class="logout">
-            <a href="index.php">
+            <a href="logout.php">
                 <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
             </a>
@@ -113,64 +85,11 @@ if ($slotsResult->num_rows > 0) {
 <div class="toggle-btn" id="toggleBtn">
     <i class="fas fa-bars"></i>
 </div>
-
 <div class="container my-5">
-    <h2>Parking Slots</h2>
-    <div class="row">
-        <?php foreach ($slots as $slot): ?>
-            <div class="col-sm-3">
-                <div class="slot <?php echo $slot['status']; ?>">
-                    <?php echo $slot['slot_number']; ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</div>
-</div>
-<style>
-    body {
-        background-color: #f8f9fa;
-        font-family: Arial, sans-serif;
-        color: #333;
-        }
-        .container {
-            text-align: center;
-        max-width: 1900px;
-        padding: 20px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .slot {
-            width: 100%;
-            height: 120px; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px;
-            border-radius: 10px;
-            font-size: 28px; 
-            color: white;
-            transition: transform 0.2s; 
-            cursor: pointer; 
-        }
-        .available {
-            background-color: #28a745; 
-        }
-        .occupied {
-            background-color: #dc3545; 
-        }
-        .slot:hover {
-            transform: scale(1.05); 
-        }
-        .row {
-            display: flex;
-            flex-wrap: wrap; 
-        }
-</style>
-<script src="admin.js">
     
-</script>
+</div>
+
+<script src="admin.js"></script>
 </body>
 </body>
 </html>

@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
@@ -18,10 +17,15 @@ if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
 }
 
-$sql = "SELECT * FROM clients WHERE slot_occupied IS NOT NULL";
-$result = $connection->query($sql);
-?>
+$totalIncomeQuery = "SELECT SUM(price) AS total_income FROM clients";
+$totalIncomeResult = $connection->query($totalIncomeQuery);
 
+$total_income = 0;
+if ($totalIncomeResult) {
+    $totalIncomeRow = $totalIncomeResult->fetch_assoc();
+    $total_income = $totalIncomeRow['total_income'] ?? 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,18 +58,18 @@ $result = $connection->query($sql);
             </a>
         </li>
         <li>
-            <a href="EntryVehicle.php">
-                <i class="fa fa-xl fa-car color-blue"></i>
-                <span>Vehicles Entry</span>
-            </a>
-        </li>
+        <a href="EntryVehicle.php">
+            <i class="fa fa-xl fa-car color-blue"></i>
+            <span>Vehicles Entry</span>
+        </a>
+    </li>
         <li>
             <a href="InVehicle.php">
                 <i class="fa fa-xl fa-toggle-on color-orange"></i>
                 <span>IN Vehicles</span>
             </a>
         </li>
-        <li class="active">
+        <li>
             <a href="outVehicle.php">
                  <i class="fa fa-xl fa-toggle-off color-teal"></i>
                   <span>OUT Vehicles</span>
@@ -83,14 +87,14 @@ $result = $connection->query($sql);
                 <span>View Report</span>                
             </a>
         </li>
-        <li>
+        <li class="active">
             <a href="totalIncome.php">
                 <i class="fas fa-dollar-sign"></i>
                     <span>Total Income</span>
             </a>
         </li>
         <li class="logout">
-            <a href="index.php">
+            <a href="logout.php">
                 <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
             </a>
@@ -100,114 +104,38 @@ $result = $connection->query($sql);
 <div class="toggle-btn" id="toggleBtn">
     <i class="fas fa-bars"></i>
 </div>
-<div class="container my-5">
-    <h2>Out Vehicles</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Vehicle Type</th>
-                <th>Registration Number</th>
-                <th>Slot Occupied</th>
-                <th>Date</th>
-                <th>Price</th>
-                <th>Checkout</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $row['id'] . "</td>";
-                    echo "<td>" . $row['name'] . "</td>";
-                    echo "<td>" . $row['vehicle_type'] . "</td>";
-                    echo "<td>" . $row['registration'] . "</td>";
-                    echo "<td>" . $row['slot_occupied'] . "</td>";
-                    echo "<td>" . $row['date'] . "</td>";
-                    echo "<td>" . $row['price'] . "</td>";
-                    echo "<td><a href='checkout.php?id=" . $row['id'] . "&slot=" . $row['slot_occupied'] . "' class='btn btn-primary'>Checkout</a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='8' class='text-center'>No vehicles to check out</td></tr>";
-            }
-            ?>
-        </tbody>
-    </table>
-</div>
+<div class="main-content">
+    <h2 class="header-title">Total Income</h2>
+    <div class="income-display">
+        Total Income: <span class="text-success"><?= number_format($total_income, 2); ?> PHP</span>
+    </div>
+   
 </div>
 <style>
-    .container {
-    margin-top: 20px;
-}
+        .main-content {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
 
-.table {
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: white;
-}
+        .income-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1b3ba3;
+            margin-top: 20px;
+        }
 
-.table thead th {
-    background-color: #1b3ba3;
-    color: white;
-    padding: 15px;
-    text-align: left;
-    font-weight: bold;
-}
-
-.table tbody tr {
-    transition: background-color 0.3s;
-}
-
-.table tbody tr:hover {
-    background-color: rgba(27, 59, 163, 0.1);
-}
-
-.table tbody td {
-    padding: 12px;
-    color: #333;
-    vertical-align: middle;
-}
-
-.table tbody td a {
-    margin-right: 5px;
-}
-
-.table .btn {
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.btn-primary {
-    background-color: #1b3ba3;
-    border: none;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #142d7a;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-</style>
-<script src="scripts.js">
-    
-</script>
+        .header-title {
+            color: #1b3ba3;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+    </style>
+<script src="admin.js"></script>
 </body>
 </body>
 </html>
-
-<?php $connection->close(); ?>
