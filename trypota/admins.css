@@ -1,0 +1,364 @@
+* {
+    padding: 0;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;  
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: white;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    padding: 20px;
+}
+
+.topnav {
+    padding: 8px;
+    position: fixed;
+    top: 0;
+    left: 0;    
+    width: 100%;
+    background-color: white;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topnav .name {
+    pointer-events: none;
+    flex-grow: 1;
+    text-align: center;
+    font-size: 2rem;
+    color: black;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.topnav a {
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topnav a:first-child {
+    margin-left: 20px; 
+}
+
+.topnav a:hover {
+    background-color: white;
+    color: black;
+    border-bottom: 3px solid black;
+}
+
+.topnav a.active {
+    background-color: #04AA6D;
+    color: white;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    height: 100vh;
+    padding: 0 1.7rem;
+    color: white;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    text-decoration: none;
+    z-index: 1000;
+    background: linear-gradient(to right, #1b3ba3, #1b3ba3);
+}
+
+.sidebar.close {
+    width: 0; 
+    padding: 0;
+    overflow: hidden;
+}
+
+.logo img {
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 10px #003cff);
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        filter: drop-shadow(0 0 5px #003cff);
+    }
+    to {
+        filter: drop-shadow(0 0 20px #003cff);
+    }
+}
+
+
+.menu {
+    height: 88%;
+    list-style: none;
+    padding: 0;
+    text-decoration: none;
+}
+
+.menu li {
+    padding: 1rem;
+    margin: 8px 0;
+    border-radius: 8px;
+    transition: all 0.5s ease;
+}
+
+.menu li:hover, .active {
+    background-color: #3C61CC;
+}
+
+.menu a {
+    color: white;
+    font-size: 14px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.menu a span {
+    overflow: hidden;
+    transition: all 0.5s ease;
+    text-decoration: none;
+}
+
+.menu a i {
+    font-size: 1.2rem;
+}
+
+.toggle-btn {
+    position: fixed;
+    top: 20px;
+    left: 250px; 
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: left 0.5s ease;
+}
+
+.sidebar.close ~ .toggle-btn {
+    left: 20px;
+}
+
+.logout {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+.content {
+    margin-left: 250px; /* Adjust for sidebar width */
+    padding: 20px;
+    background-color: white;
+    flex-grow: 1;
+    text-align: center;
+    color: black;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+span{
+    color: white;
+    font-weight: 400;
+    text-decoration: none;
+}
+.tutorial {
+padding: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+
+}
+
+.tutorial h1 {
+font-size: 5rem;
+font-weight: 500;
+margin-top: 30px;
+text-align: center;
+color: black;
+margin-bottom: 30px;
+}
+
+.tutorial-container {
+display: grid;
+max-width: 1800px;
+margin: 0 auto;
+padding: 0 20px;
+}
+
+.tutorial-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 20px;
+}
+
+.tutorial-item {
+background-color: #f9f9f9;
+border-radius: 8px;
+overflow: hidden;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+transition: transform 0.3s ease;
+}
+
+.tutorial-item:hover {
+transform: translateY(-5px);
+}
+
+.tutorial-item img {
+width: 100%;
+height: auto;
+max-height: 200px;
+object-fit: cover;
+}
+
+.tutorial-content {
+padding: 20px;
+}
+
+.tutorial-content h2 {
+color: #2c3e50;
+margin-top: 0;
+}
+
+.tutorial-content p {
+margin-bottom: 15px;
+}
+
+.read-more {
+display: inline-block;
+background-color: #3498db;
+color: white;
+padding: 8px 15px;
+text-decoration: none;
+border-radius: 4px;
+transition: background-color 0.3s ease;
+}
+
+.read-more:hover {
+background-color: #2980b9;
+}
+.about{
+display: flex;
+color: black;
+justify-content: center;
+align-items: center;
+gap: 18rem;
+background-color: transparent;
+}
+.about-img img{
+width: 25vw;
+filter: drop-shadow(0 0 10px #007bff);
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes glow {
+    from {
+        filter: drop-shadow(0 0 5px #007bff);
+    }
+    to {
+        filter: drop-shadow(0 0 20px #007bff);
+    }
+}
+
+.about-content h2{
+font-size: 7rem;
+text-align: left;
+font-weight: 700;
+}
+.about-content h3{
+font-weight: 700;
+color: black;
+font-size: 4rem;
+margin: 1rem 0;
+}
+.about-content p{
+font-size: 1.8rem;
+color: black;
+}
+.about-content h5{
+color: white;
+font-size: 1.8rem;
+margin: 1rem 0;
+}
+::-webkit-scrollbar{
+width: 10px;
+}
+::-webkit-scrollbar-thumb{
+background-color: #1b3ba3;
+}
+.about-content span {
+        color: #1b3ba3;
+        font-weight: 700;
+    }
+    .topnav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: white;
+        color: white;
+    }
+    .account-btn {
+        background-color: transparent;
+        color: black;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: white;
+        min-width: 280px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        color: black;
+    }
+    .dropdown-content.show {
+        display: flex;
+        flex-direction: column;
+    }
+    .user-info {
+        padding: 16px;
+        color: black;
+    }
+    .user-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: black;
+    }
+    .user-id {
+        font-size: 0.8em;
+        color: #aaa;
+    } 
+    .user-id::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #4CAF50;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .divider i span {
+        height: 1px;
+        margin: 5px 0;
+        color: white;
+    }
+
